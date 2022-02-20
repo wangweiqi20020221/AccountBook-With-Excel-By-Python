@@ -148,7 +148,7 @@ class AccountBook:
 
 
 account_book = AccountBook(file_name="Account Book.xlsx", sheet=0)
-print(account_book.check_amount(member_id=3, receipt_id=0))
+# account_book.check_amount(member_id=3, receipt_id=0)
 # account_book.register_receipt(sheet_name="2022-02",
 #                               date="2022-02-04 14:53:00",
 #                               owners_list=[3],
