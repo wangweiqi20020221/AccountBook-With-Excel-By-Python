@@ -45,17 +45,17 @@ class AccountBook:
                 self.sheet["购买者清单"][index][index2] = str(self.sheet["购买者清单"][index][index2]).split("&")
         logging.info("excel文件加载完毕")
 
-    def check_amount(self, member_id=0, receipt_id=0):
+    def check_amount(self, purchaser_id=0, receipt_id=0):
         """
         查询某账单中某个人的消费金额。
-        :param member_id:查询一个账本中某个人买的金额。
+        :param purchaser_id:查询一个账本中某个人买的金额。
         :param receipt_id:要查询的账本id。
         :return:{"member_id": amount}
         """
         receipt = self.sheet.loc[receipt_id]
         total = 0
         for index in range(len(receipt["商品清单"])):
-            if str(member_id) in receipt["购买者清单"][index]:
+            if str(purchaser_id) in receipt["购买者清单"][index]:
                 total += receipt["价格清单"][index] / len(receipt["购买者清单"][index])
         return total
 
@@ -90,15 +90,15 @@ class AccountBook:
     def register_receipt(self, sheet_name="", date="", owners_list=[], location="", items_list=[], prices_list=[], purchasers_list=[], tax=0):
         """
         创建一个新的账单。
-        :param sheet_name:
-        :param date:
-        :param owners_list:
-        :param location:
-        :param items_list:
-        :param prices_list:
-        :param purchasers_list:
-        :param tax:
-        :return:
+        :param sheet_name:表的名字（而不是第几个表）
+        :param date:账单的时间，类似"yyyy-mm-dd hh:mm:ss"
+        :param owners_list:账单所有者的id列表。应当把所有在帐本中出现过的id都列入这个列表。
+        :param location:购买地点。
+        :param items_list:商品类目清单，列出了所有够买的商品。
+        :param prices_list:价格清单，列出了这些商品对应的价格。
+        :param purchasers_list:购买者清单，列出了这些商品对应的购买者id。若一个商品是多个人一起买的，则用‘&‘来分隔这些人的id。
+        :param tax:税。如果你的账单没有额外的税，填写0即可。
+        :return:0
         """
         self.sheet = self.sheet.append(pandas.Series([date,
                                                       owners_list,
@@ -148,7 +148,7 @@ class AccountBook:
 
 
 account_book = AccountBook(file_name="Account Book.xlsx", sheet=0)
-# account_book.check_amount(member_id=3, receipt_id=0)
+# account_book.check_amount(purchaser_id=3, receipt_id=0)
 # account_book.register_receipt(sheet_name="2022-02",
 #                               date="2022-02-04 14:53:00",
 #                               owners_list=[3],
