@@ -8,6 +8,8 @@ github: wangweiqi20020221
 import pandas
 import time
 import logging
+from reportlab.platypus import SimpleDocTemplate
+from reportlab.lib.styles import getSampleStyleSheet
 
 
 class AccountBook:
@@ -141,13 +143,61 @@ class AccountBook:
             sheet_for_saved["所有者名单"][index] = list_to_str(sheet_for_saved["所有者名单"][index])
             sheet_for_saved["商品清单"][index] = list_to_str(sheet_for_saved["商品清单"][index])
             sheet_for_saved["价格清单"][index] = list_to_str(sheet_for_saved["价格清单"][index])
-            sheet_for_saved["购买者清单"][index] = list_to_str(sheet_for_saved["购买者清单"][index])
+            purchaser = ""
+            for p in sheet_for_saved["购买者清单"][index]:
+                for p_id in p:
+                    purchaser += p_id
+                    purchaser += "&"
+                purchaser = purchaser[:-1]
+                purchaser += ","
+            purchaser = purchaser[:-1]
+            sheet_for_saved["购买者清单"][index] = purchaser
         sheet_for_saved.to_excel(self.file_name, sheet_name=sheet_name, index=False)
         logging.warning("账本文件被保存")
         return "Data saved."
 
+    def save_to_pdf(self, receipt_id):
+        # 创建pdf文件
+        pdf = SimpleDocTemplate("/pdf/" + self.sheet["时间"][receipt_id] + ".pdf")
+        pass
 
-account_book = AccountBook(file_name="Account Book.xlsx", sheet=0)
+
+class Users:
+    def __init__(self):
+        """
+        初始化用户表
+        """
+        # 读取数据
+        self.sheet = pandas.read_excel(io="User.xlsx", sheet_name=0)
+
+    def add_user(self, name):
+        """
+        添加用户
+        :param name: 用户名，数据类型为字符串。
+        :return: 0
+        """
+        self.sheet = self.sheet.append(pandas.Series(data=name, index=["姓名"]), ignore_index=True)
+        self.sheet.to_excel("User.xlsx", index=False)
+        return 0
+
+    def get_user_name(self, user_id):
+        """
+        通过id查询用户名
+        :param user_id: 用户id，数据类型为≥0的整数
+        :return: 用户名，数据类型为字符串
+        """
+        return self.sheet["姓名"][user_id]
+
+    def get_user_id(self, user_name):
+        """
+        通过用户名查id
+        :param user_name: 用户名，数据类型为字符串
+        :return: 所有符合条件的dataFrame
+        """
+        return self.sheet[self.sheet["姓名"].str.contains(user_name)]
+
+
+# account_book = AccountBook(file_name="Account Book.xlsx", sheet=0)
 # account_book.check_amount(purchaser_id=3, receipt_id=0)
 # account_book.register_receipt(sheet_name="2022-02",
 #                               date="2022-02-04 14:53:00",
@@ -159,3 +209,5 @@ account_book = AccountBook(file_name="Account Book.xlsx", sheet=0)
 #                               tax=0)
 # print(account_book.check_receipt(receipt_id=0))
 # print(account_book.get_receipt(content={"地点": "天车站"}))
+# users = Users()
+# users.add_user("")
